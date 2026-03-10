@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏇 Cheltenham 2025 — Tipping Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #0a2e1a;
+    --green-mid: #0f4a2a;
+    --green: #1a7a40;
+    --green-light: #2db362;
+    --gold: #d4a017;
+    --gold-light: #f0c040;
+    --cream: #f5f0e8;
+    --white: #ffffff;
+    --gray: #8a9a8e;
+    --red: #c0392b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--green-dark);
+    color: var(--cream);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.012) 60px, rgba(255,255,255,0.012) 61px),
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.012) 60px, rgba(255,255,255,0.012) 61px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px 20px 30px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+    border-bottom: 3px solid var(--gold);
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--green-dark);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 4px 16px;
+    border-radius: 2px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    letter-spacing: -1px;
+  }
+
+  h1 span { color: var(--gold-light); }
+
+  .subtitle {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-top: 6px;
+  }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .last-updated {
+    font-size: 12px;
+    color: var(--gray);
+  }
+
+  .live-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--green-light);
+  }
+
+  .live-dot::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green-light);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 30px;
+    background: rgba(0,0,0,0.3);
+    padding: 6px;
+    border-radius: 8px;
+    width: fit-content;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--gray);
+    transition: all 0.2s;
+  }
+
+  .tab:hover { color: var(--cream); }
+  .tab.active { background: var(--gold); color: var(--green-dark); }
+
+  .refresh-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: 1px solid rgba(212,160,23,0.4);
+    cursor: pointer;
+    background: rgba(212,160,23,0.1);
+    color: var(--gold);
+    transition: all 0.2s;
+    margin-bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .refresh-btn:hover { background: rgba(212,160,23,0.2); }
+  .refresh-btn.spinning .spin-icon { animation: spin 1s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--gold-light);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(212,160,23,0.4), transparent);
+  }
+
+  .leaderboard {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 4px;
+    margin-bottom: 40px;
+  }
+
+  .leaderboard thead th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    padding: 8px 16px;
+    text-align: left;
+  }
+
+  .leaderboard thead th.score-col { text-align: right; }
+
+  .leaderboard tbody tr {
+    background: rgba(255,255,255,0.04);
+    transition: all 0.2s;
+    animation: fadeSlideIn 0.4s ease both;
+  }
+
+  .leaderboard tbody tr:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateX(3px);
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .leaderboard tbody tr td { padding: 14px 16px; }
+  .leaderboard tbody tr td:first-child { border-radius: 6px 0 0 6px; }
+  .leaderboard tbody tr td:last-child { border-radius: 0 6px 6px 0; }
+
+  .pos {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    width: 40px;
+    color: var(--gray);
+  }
+
+  .pos.p1 { color: var(--gold-light); font-size: 22px; }
+  .pos.p2 { color: #c0c0c0; }
+  .pos.p3 { color: #cd7f32; }
+
+  .name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--white);
+    min-width: 140px;
+  }
+
+  .day-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: right;
+    color: var(--cream);
+    min-width: 60px;
+  }
+
+  .day-score.zero { color: var(--gray); }
+
+  .total-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: right;
+    color: var(--gold-light);
+    min-width: 70px;
+  }
+
+  .bar-cell { width: 100%; min-width: 120px; padding-right: 20px !important; }
+
+  .bar-track {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-light), var(--gold));
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .rank-1 { background: linear-gradient(90deg, rgba(212,160,23,0.15), rgba(212,160,23,0.05)) !important; }
+  .rank-2 { background: linear-gradient(90deg, rgba(192,192,192,0.1), rgba(192,192,192,0.03)) !important; }
+  .rank-3 { background: linear-gradient(90deg, rgba(205,127,50,0.1), rgba(205,127,50,0.03)) !important; }
+
+  .day-panel { display: none; }
+  .day-panel.active { display: block; }
+
+  .race-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 30px;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .race-table th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    padding: 6px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .race-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--cream);
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  .race-table tr:hover td { background: rgba(255,255,255,0.04); }
+
+  .race-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .horse-pick { color: var(--gray); font-size: 12px; }
+  .pts { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-align: right; }
+  .pts.positive { color: var(--green-light); }
+  .pts.zero { color: rgba(255,255,255,0.2); }
+
+  .loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 20px;
+  }
+
+  .loading-horse {
+    font-size: 3rem;
+    animation: gallop 0.6s infinite alternate;
+  }
+
+  @keyframes gallop {
+    from { transform: translateY(0) rotate(-5deg); }
+    to { transform: translateY(-10px) rotate(5deg); }
+  }
+
+  .loading-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  .error-box {
+    background: rgba(192,57,43,0.15);
+    border: 1px solid rgba(192,57,43,0.4);
+    border-radius: 8px;
+    padding: 20px 24px;
+    color: #e74c3c;
+    font-size: 14px;
+    margin: 20px 0;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    padding: 12px 28px;
+    border-radius: 30px;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .no-data {
+    text-align: center;
+    padding: 40px;
+    color: var(--gray);
+    font-style: italic;
+  }
+
+  @media (max-width: 768px) {
+    .bar-cell { display: none; }
+    .day-score { min-width: 44px; font-size: 13px; }
+    .name { font-size: 14px; min-width: 100px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">🏇 The Festival 2025</div>
+  <h1><span>Cheltenham</span> Tipping Competition</h1>
+  <div class="subtitle">The Ultimate Four-Day Challenge</div>
+  <div class="status-bar">
+    <div class="live-dot">Live</div>
+    <div class="last-updated" id="lastUpdated">Fetching scores...</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <button class="refresh-btn" id="refreshBtn" onclick="fetchAndRender()">
+    <span class="spin-icon">↻</span> Refresh Scores
+  </button>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overall', this)">🏆 Overall</button>
+    <button class="tab" onclick="switchTab('day1', this)">Day 1</button>
+    <button class="tab" onclick="switchTab('day2', this)">Day 2</button>
+    <button class="tab" onclick="switchTab('day3', this)">Day 3</button>
+    <button class="tab" onclick="switchTab('day4', this)">Day 4</button>
+  </div>
+
+  <div id="panel-overall" class="day-panel active">
+    <div class="section-title"><span>🏆</span> Overall Standings</div>
+    <div id="overall-board"><div class="loading-screen"><div class="loading-horse">🏇</div><div class="loading-text">Loading scores...</div></div></div>
+  </div>
+
+  <div id="panel-day1" class="day-panel">
+    <div class="section-title">📅 Day 1 — Tuesday 11th March</div>
+    <div id="day1-board"></div>
+  </div>
+  <div id="panel-day2" class="day-panel">
+    <div class="section-title">📅 Day 2 — Wednesday 12th March</div>
+    <div id="day2-board"></div>
+  </div>
+  <div id="panel-day3" class="day-panel">
+    <div class="section-title">📅 Day 3 — Thursday 13th March</div>
+    <div id="day3-board"></div>
+  </div>
+  <div id="panel-day4" class="day-panel">
+    <div class="section-title">📅 Day 4 — Friday 14th March</div>
+    <div id="day4-board"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEET_ID = '1wakZrFQ1V-TvR2QHnKg_-OVF7FgZs91KjAZRLyzrB2E';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+const DAYS = 4;
+const RACES_PER_DAY = 7;
+const RACE_TIMES = ['13:20','14:00','14:40','15:20','16:00','16:40','17:20'];
+
+let competitors = [];
+let scores = {};     // scores[day][race][competitorIndex] = {horse, pts}
+let dayTotals = {};  // dayTotals[day][competitorIndex]
+
+// ─── FETCH FROM GOOGLE SHEETS ─────────────────────────────────────────────────
+async function fetchCSV() {
+  // Use a CORS proxy to fetch the public Google Sheet CSV
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_URL)}`;
+  const response = await fetch(proxyUrl);
+  if (!response.ok) throw new Error('Failed to fetch sheet');
+  return await response.text();
+}
+
+function parseCSV(text) {
+  // Split into lines, handle quoted fields
+  return text.split('\n').map(line => {
+    const cols = [];
+    let cur = '';
+    let inQuote = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQuote = !inQuote; }
+      else if (ch === ',' && !inQuote) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    return cols;
+  });
+}
+
+function processData(rows) {
+  competitors = [];
+  scores = {};
+  dayTotals = {};
+
+  for (let d = 1; d <= DAYS; d++) {
+    scores[d] = {};
+    for (let r = 1; r <= RACES_PER_DAY; r++) scores[d][r] = [];
+    dayTotals[d] = [];
+  }
+
+  let currentDay = 0;
+  let currentRace = 0;
+  let headerParsed = false;
+
+  for (let li = 0; li < rows.length; li++) {
+    const row = rows[li];
+    const first = (row[0] || '').trim();
+
+    // Detect DAY header row — also grab competitor names
+    if (/^DAY\s*1$/i.test(first)) {
+      currentDay = 1;
+      currentRace = 0;
+      if (!headerParsed) {
+        // Competitor names are in alternating columns starting at col 1
+        // col 1 = name, col 3 = name, col 5 = name...
+        for (let c = 1; c < row.length; c += 2) {
+          const name = (row[c] || '').trim();
+          if (name && name !== '') competitors.push(name);
+        }
+        // Init arrays now we know competitor count
+        for (let d = 1; d <= DAYS; d++) {
+          dayTotals[d] = new Array(competitors.length).fill(0);
+          for (let r = 1; r <= RACES_PER_DAY; r++) {
+            scores[d][r] = competitors.map(() => ({ horse: '', pts: 0 }));
+          }
+        }
+        headerParsed = true;
+      }
+      continue;
+    }
+
+    if (/^DAY\s*(\d)/i.test(first)) {
+      const m = first.match(/DAY\s*(\d)/i);
+      currentDay = parseInt(m[1]);
+      currentRace = 0;
+      continue;
+    }
+
+    // Detect Race rows
+    if (/^Race\s*\d/i.test(first) && currentDay > 0 && competitors.length > 0) {
+      currentRace++;
+      if (currentRace > RACES_PER_DAY) continue;
+
+      for (let c = 0; c < competitors.length; c++) {
+        const horseCol = 1 + c * 2;
+        const ptsCol   = 2 + c * 2;
+        const horse = (row[horseCol] || '').trim();
+        const pts   = parseInt(row[ptsCol]) || 0;
+        if (scores[currentDay] && scores[currentDay][currentRace]) {
+          scores[currentDay][currentRace][c] = { horse, pts };
+        }
+      }
+      continue;
+    }
+  }
+
+  // Recalc day totals
+  for (let d = 1; d <= DAYS; d++) {
+    dayTotals[d] = new Array(competitors.length).fill(0);
+    for (let r = 1; r <= RACES_PER_DAY; r++) {
+      if (!scores[d][r]) continue;
+      for (let c = 0; c < competitors.length; c++) {
+        dayTotals[d][c] += (scores[d][r][c]?.pts || 0);
+      }
+    }
+  }
+}
+
+function getOverallTotals() {
+  return competitors.map((_, c) => {
+    let total = 0;
+    for (let d = 1; d <= DAYS; d++) total += (dayTotals[d][c] || 0);
+    return total;
+  });
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderOverall() {
+  const overall = getOverallTotals();
+  const maxPts = Math.max(...overall, 1);
+
+  const ranked = competitors.map((name, i) => ({
+    name,
+    overall: overall[i],
+    days: [1,2,3,4].map(d => dayTotals[d][i] || 0)
+  })).sort((a, b) => b.overall - a.overall);
+
+  let html = `
+    <table class="leaderboard">
+      <thead><tr>
+        <th>#</th><th>Competitor</th>
+        <th class="score-col">Day 1</th>
+        <th class="score-col">Day 2</th>
+        <th class="score-col">Day 3</th>
+        <th class="score-col">Day 4</th>
+        <th class="bar-cell"></th>
+        <th class="score-col">Total</th>
+      </tr></thead><tbody>`;
+
+  ranked.forEach((p, idx) => {
+    const pos = idx + 1;
+    const rankClass = pos === 1 ? 'rank-1' : pos === 2 ? 'rank-2' : pos === 3 ? 'rank-3' : '';
+    const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
+    const posClass = pos === 1 ? 'p1' : pos === 2 ? 'p2' : pos === 3 ? 'p3' : '';
+    const barPct = (p.overall / maxPts * 100).toFixed(1);
+    const dayCols = p.days.map(d =>
+      `<td class="day-score ${d === 0 ? 'zero' : ''}">${d > 0 ? d : '—'}</td>`
+    ).join('');
+
+    html += `
+      <tr class="${rankClass}" style="animation-delay:${idx*25}ms">
+        <td class="pos ${posClass}">${medal}</td>
+        <td class="name">${p.name}</td>
+        ${dayCols}
+        <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:${barPct}%"></div></div></td>
+        <td class="total-score">${p.overall}</td>
+      </tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('overall-board').innerHTML = html;
+}
+
+function renderDay(day) {
+  const el = document.getElementById(`day${day}-board`);
+  const tots = dayTotals[day] || [];
+  const maxPts = Math.max(...tots, 1);
+  const hasData = tots.some(t => t > 0);
+
+  if (!hasData) {
+    el.innerHTML = `<div class="no-data">No scores for Day ${day} yet — check back after the races! 🏇</div>`;
+    return;
+  }
+
+  const ranked = competitors.map((name, i) => ({
+    name, pts: tots[i] || 0, idx: i
+  })).sort((a, b) => b.pts - a.pts);
+
+  let html = `<table class="leaderboard" style="margin-bottom:30px">
+    <thead><tr><th>#</th><th>Competitor</th><th class="bar-cell"></th><th class="score-col">Points</th></tr></thead><tbody>`;
+
+  ranked.forEach((p, idx) => {
+    const pos = idx + 1;
+    const rankClass = pos === 1 ? 'rank-1' : pos === 2 ? 'rank-2' : pos === 3 ? 'rank-3' : '';
+    const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
+    const barPct = (p.pts / maxPts * 100).toFixed(1);
+    html += `
+      <tr class="${rankClass}" style="animation-delay:${idx*20}ms">
+        <td class="pos">${medal}</td>
+        <td class="name">${p.name}</td>
+        <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:${barPct}%"></div></div></td>
+        <td class="total-score">${p.pts > 0 ? p.pts : '—'}</td>
+      </tr>`;
+  });
+
+  html += '</tbody></table>';
+
+  // Race breakdown
+  html += `<div class="section-title" style="font-size:1.1rem">Race by Race Breakdown</div>`;
+  html += `<table class="race-table"><thead><tr><th>Race</th>`;
+  competitors.forEach(n => html += `<th>${n}</th>`);
+  html += `</tr></thead><tbody>`;
+
+  for (let r = 1; r <= RACES_PER_DAY; r++) {
+    const time = RACE_TIMES[r-1] || '';
+    const raceScores = scores[day][r] || [];
+    const hasRaceData = raceScores.some(s => s.horse);
+    if (!hasRaceData) continue;
+
+    html += `<tr><td class="race-label">Race ${r}<br><span style="font-weight:400;color:var(--gray);font-size:11px">${time}</span></td>`;
+    raceScores.forEach(s => {
+      const hasPoints = s.pts > 0;
+      html += `<td>
+        <div class="horse-pick">${s.horse || '—'}</div>
+        <div class="pts ${hasPoints ? 'positive' : 'zero'}">${hasPoints ? s.pts : '—'}</div>
+      </td>`;
+    });
+    html += '</tr>';
+  }
+
+  // Totals row
+  html += `<tr style="background:rgba(212,160,23,0.1)"><td class="race-label" style="color:var(--gold)">TOTAL</td>`;
+  tots.forEach(t => {
+    html += `<td class="pts ${t > 0 ? 'positive' : 'zero'}" style="font-size:17px">${t > 0 ? t : '—'}</td>`;
+  });
+  html += '</tr></tbody></table>';
+
+  el.innerHTML = html;
+}
+
+function renderAll() {
+  renderOverall();
+  for (let d = 1; d <= DAYS; d++) renderDay(d);
+}
+
+// ─── FETCH & RENDER ───────────────────────────────────────────────────────────
+async function fetchAndRender() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+
+  try {
+    const csv = await fetchCSV();
+    const rows = parseCSV(csv);
+    processData(rows);
+    renderAll();
+
+    const now = new Date();
+    document.getElementById('lastUpdated').textContent =
+      'Updated ' + now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) +
+      ' · ' + now.toLocaleDateString('en-GB');
+
+    showToast('✅ Scores refreshed!');
+  } catch (err) {
+    console.error(err);
+    document.getElementById('lastUpdated').textContent = 'Error loading — retrying...';
+    document.getElementById('overall-board').innerHTML =
+      `<div class="error-box">⚠️ Couldn't load scores from Google Sheets. Make sure the sheet is set to "Anyone with the link can view", then click Refresh.</div>`;
+    showToast('❌ Could not fetch scores');
+  }
+
+  btn.classList.remove('spinning');
+}
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function switchTab(panel, btn) {
+  document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── AUTO REFRESH every 60 seconds ───────────────────────────────────────────
+fetchAndRender();
+setInterval(fetchAndRender, 60000);
+</script>
+</body>
+</html>
